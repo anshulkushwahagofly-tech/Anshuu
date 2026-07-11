@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050a07">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Anshul Kushwaha — WordPress Developer, SEO Expert, Google Ads Specialist & Social Media Marketer based in Jhansi, UP.">
+<title>Anshul Kushwaha — Digital Empire, Jhansi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #050a07;
+    --violet: #8f7cff;
+    --cyan: #46d69c;
+    --ember: #e8b34d;
+    --ice: #eef0f5;
+    --grey: #8a9088;
+    --line: rgba(238,240,245,0.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    background: var(--bg);
+    color: var(--ice);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    width: 100%;
+    scrollbar-width: none;
+  }
+  body::-webkit-scrollbar{ display:none; }
+
+  canvas#scene{
+    position: fixed;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    z-index: 0;
+    display:block;
+  }
+
+  .vignette{
+    position: fixed;
+    top:0;left:0;width:100vw;height:100vh;
+    z-index:1;
+    pointer-events:none;
+    background: radial-gradient(ellipse at center, rgba(5,10,7,0) 40%, rgba(5,10,7,0.8) 100%);
+  }
+
+  .grain{
+    position: fixed; inset:0; z-index:2; pointer-events:none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  header{
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 10;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    padding: 28px 40px;
+    mix-blend-mode: difference;
+  }
+  .logo{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    color: var(--ice);
+  }
+  nav a{
+    color: var(--ice);
+    text-decoration:none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-left: 28px;
+    opacity: 0.85;
+    transition: opacity 0.3s;
+  }
+  nav a:hover{ opacity: 1; }
+  .nav-sep{ opacity:0.4; margin-left:28px; }
+
+  .scroll-hint{
+    position: fixed;
+    bottom: 28px; left: 40px;
+    z-index: 10;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--grey);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .scroll-hint .bar{
+    width: 1px; height: 32px;
+    background: linear-gradient(to bottom, var(--ice), transparent);
+    animation: scrollbob 2s ease-in-out infinite;
+  }
+  @keyframes scrollbob{
+    0%,100%{ transform: translateY(0); opacity:1; }
+    50%{ transform: translateY(6px); opacity:0.3; }
+  }
+
+  .progress-track{
+    position: fixed;
+    top: 0; right: 40px;
+    height: 100vh;
+    width: 1px;
+    z-index: 10;
+    background: var(--line);
+  }
+  .progress-fill{
+    position:absolute;
+    top:0; left:0; width:100%;
+    height: 0%;
+    background: linear-gradient(to bottom, var(--cyan), var(--violet));
+  }
+
+  main{ position: relative; z-index: 3; }
+
+  section{
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100vw;
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    padding: 0 40px;
+    position: relative;
+  }
+
+  /* ---------- Loader ---------- */
+  #loader{
+    position: fixed; inset:0; z-index: 999;
+    background: var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap: 18px;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  #loader.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  .loader-mark{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700; font-size:15px; letter-spacing:2px; color:var(--ice);
+  }
+  .loader-bar{
+    width: 160px; height:2px; background:var(--line); overflow:hidden; border-radius:2px;
+  }
+  .loader-fill{
+    height:100%; width:0%;
+    background: linear-gradient(to right, var(--cyan), var(--violet));
+    transition: width 0.2s ease;
+  }
+  .loader-pct{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--grey); letter-spacing:1px;
+  }
+
+  .eyebrow{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    margin-bottom: 22px;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  h1.hero-title{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(40px, 7vw, 96px);
+    line-height: 1.02;
+    letter-spacing: -1.5px;
+    max-width: 900px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .hero-sub{
+    margin-top: 26px;
+    max-width: 520px;
+    color: var(--grey);
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease 0.15s, transform 1s ease 0.15s;
+  }
+
+  .chapter-index{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--grey);
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  h2.chapter-title{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(34px, 6vw, 76px);
+    letter-spacing: -1px;
+    max-width: 760px;
+    line-height: 1.05;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .chapter-desc{
+    margin-top: 20px;
+    max-width: 460px;
+    color: var(--grey);
+    font-size: 15.5px;
+    line-height: 1.7;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s ease 0.12s, transform 0.9s ease 0.12s;
+  }
+  .chapter-tags{
+    margin-top: 24px;
+    display:flex; gap: 10px;
+    opacity: 0;
+    transition: opacity 1s ease 0.25s;
+  }
+  .tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    color: var(--ice);
+  }
+
+  section.in-view .eyebrow,
+  section.in-view .chapter-index{ opacity: 1; transform: translate(0,0); }
+  section.in-view h1.hero-title,
+  section.in-view h2.chapter-title,
+  section.in-view .hero-sub,
+  section.in-view .chapter-desc,
+  section.in-view .chapter-tags{ opacity: 1; transform: translate(0,0); }
+
+  .align-right{ align-items: flex-end; text-align: right; }
+  .align-right .chapter-desc{ margin-left:auto; }
+  .align-right .chapter-tags{ justify-content: flex-end; }
+
+  footer#contact{
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 0 24px;
+  }
+  footer#contact .eyebrow{ margin: 0 auto 22px; }
+  footer#contact h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(32px, 6vw, 68px);
+    letter-spacing: -1px;
+    max-width: 760px;
+    opacity:0; transform: translateY(24px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  footer#contact .email{
+    margin-top: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--cyan);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    opacity:0; transform: translateY(20px);
+    transition: opacity 1s ease 0.15s, transform 1s ease 0.15s;
+  }
+  footer#contact .email:hover{ border-color: var(--cyan); }
+  footer#contact .socials{
+    margin-top: 40px;
+    display:flex; gap: 26px;
+    opacity:0; transform: translateY(20px);
+    transition: opacity 1s ease 0.25s, transform 1s ease 0.25s;
+  }
+  footer#contact .socials a{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:1px;
+    color: var(--grey); text-decoration:none;
+  }
+  footer#contact .socials a:hover{ color: var(--ice); }
+  footer#contact.in-view h2,
+  footer#contact.in-view .email,
+  footer#contact.in-view .socials,
+  footer#contact.in-view .eyebrow{ opacity:1; transform:translate(0,0); }
+
+  @media (max-width: 640px){
+    header{ padding: 20px; }
+    nav a{ margin-left:16px; font-size: 10.5px; }
+    section{ padding: 0 22px; }
+    .progress-track{ right: 16px; }
+    .chapter-desc{ font-size: 14.5px; }
+    .scroll-hint{ left: 22px; bottom: 22px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-mark">ANSHUL.K</div>
+  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-pct" id="loaderPct">Loading 0%</div>
+</div>
+
+<canvas id="scene"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<header>
+  <div class="logo">ANSHUL.K</div>
+  <nav>
+    <a href="#work">SERVICES</a><span class="nav-sep">—</span><a href="#contact">CONTACT</a>
+  </nav>
+</header>
+
+<div class="scroll-hint" id="scrollHint">
+  <div class="bar"></div>
+  <span>SCROLL</span>
+</div>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<main>
+  <section id="hero" data-idx="0">
+    <div class="eyebrow">AVAILABLE FOR PROJECTS — JHANSI, UP</div>
+    <h1 class="hero-title">Building your<br>digital empire<br>online.</h1>
+    <p class="hero-sub">Anshul Kushwaha — WordPress Developer, SEO Expert, Google Ads Specialist &amp; Social Media Marketer helping businesses in Jhansi and beyond generate real, quality leads.</p>
+  </section>
+
+  <section id="work" class="chapter" data-idx="1">
+    <div class="chapter-index">01 — WORDPRESS DEVELOPMENT</div>
+    <h2 class="chapter-title">Websites that work as hard as you.</h2>
+    <p class="chapter-desc">A professional website is the foundation of every successful online business. Every site is modern, fast-loading, and mobile-friendly — built to convert visitors into customers.</p>
+    <div class="chapter-tags"><span class="tag">CUSTOM DEV</span><span class="tag">WOOCOMMERCE</span><span class="tag">SPEED OPT.</span></div>
+  </section>
+
+  <section class="chapter align-right" data-idx="2">
+    <div class="chapter-index">02 — SEO EXPERT</div>
+    <h2 class="chapter-title">Rank higher. Get found. Grow organically.</h2>
+    <p class="chapter-desc">Advanced SEO strategies that help businesses rank higher and attract quality organic traffic without paying per click — real, lasting results, not shortcuts.</p>
+    <div class="chapter-tags"><span class="tag">ON-PAGE SEO</span><span class="tag">LOCAL SEO</span><span class="tag">LINK BUILDING</span></div>
+  </section>
+
+  <section class="chapter" data-idx="3">
+    <div class="chapter-index">03 — GOOGLE ADS SPECIALIST</div>
+    <h2 class="chapter-title">Faster leads. Better returns. Every rupee counts.</h2>
+    <p class="chapter-desc">Targeted campaigns that put your business in front of exactly the right audience at the right moment — maximizing ROI on every rupee spent.</p>
+    <div class="chapter-tags"><span class="tag">SEARCH ADS</span><span class="tag">REMARKETING</span><span class="tag">CONVERSION TRACKING</span></div>
+  </section>
+
+  <section class="chapter align-right" data-idx="4">
+    <div class="chapter-index">04 — SOCIAL MEDIA MARKETING</div>
+    <h2 class="chapter-title">Build a brand people actually follow.</h2>
+    <p class="chapter-desc">Creative strategies that connect with real audiences, build long-term trust, and drive real engagement — not just vanity metrics.</p>
+    <div class="chapter-tags"><span class="tag">INSTAGRAM GROWTH</span><span class="tag">REELS STRATEGY</span><span class="tag">SOCIAL ADS</span></div>
+  </section>
+
+  <footer id="contact" data-idx="5">
+    <div class="eyebrow">LET'S TALK — JHANSI, UTTAR PRADESH</div>
+    <h2>Your digital success story starts here.</h2>
+    <a class="email" href="mailto:anshul12801k@gmail.com">anshul12801k@gmail.com</a>
+    <div class="socials">
+      <a href="https://www.linkedin.com/in/anshul-kushwaha-jhansi/" target="_blank" rel="noopener">LINKEDIN</a>
+      <a href="https://www.instagram.com/_anshul.kushwaha" target="_blank" rel="noopener">INSTAGRAM</a>
+      <a href="https://wa.me/916389107259" target="_blank" rel="noopener">WHATSAPP</a>
+    </div>
+  </footer>
+</main>
+
+<script type="module">
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.1/three.module.min.js';
+
+/* ---------- Dynamic viewport height (fixes mobile URL-bar jump) ---------- */
+function setVH(){
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+window.addEventListener('orientationchange', setVH);
+
+/* ---------- Device tiering ---------- */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isTouch = window.matchMedia('(pointer: coarse)').matches;
+const isMobile = window.innerWidth < 760 || isTouch;
+const cores = navigator.hardwareConcurrency || 4;
+const lowPower = isMobile && (cores <= 4 || window.innerWidth < 420);
+
+const TIER = lowPower ? 'low' : (isMobile ? 'mid' : 'high');
+const CONFIG = {
+  low:  { particles: 900,  stars: 250, trees: 22, pixelRatio: 1.3, glow: false, icons: false, detail: 0 },
+  mid:  { particles: 1800, stars: 500, trees: 46, pixelRatio: 1.6, glow: true,  icons: true,  detail: 0 },
+  high: { particles: 4200, stars: 900, trees: 90, pixelRatio: 2,   glow: true,  icons: true,  detail: 1 },
+}[TIER];
+
+/* ---------- Scene setup ---------- */
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: TIER !== 'low', alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.pixelRatio));
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050a07, 0.032);
+scene.background = new THREE.Color(0x050a07);
+
+const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 400);
+camera.position.set(0, 0.6, 14);
+
+const GROUND_Y = -3.4;
+
+/* Chapter palette: forest through a day-to-dusk journey — hero, ch1, ch2, ch3, ch4, contact */
+const palette = [
+  new THREE.Color(0x9be6c2), // hero - misty dawn mint
+  new THREE.Color(0x46d69c), // ch1 - moss & emerald (WordPress: roots)
+  new THREE.Color(0xe8b34d), // ch2 - golden beacon light (SEO: being found)
+  new THREE.Color(0x2fd7c4), // ch3 - crystal teal (Google Ads: precision)
+  new THREE.Color(0x8f7cff), // ch4 - dusk violet (Social: gathering fireflies)
+  new THREE.Color(0xffd27a), // contact - firefly gold, night
+];
+
+/* ---------- Lights ---------- */
+const ambient = new THREE.AmbientLight(0x1f3324, 1.3);
+scene.add(ambient);
+const key = new THREE.PointLight(palette[0], 55, 60, 2);
+key.position.set(6, 8, 10);
+scene.add(key);
+const rim = new THREE.PointLight(0x46d69c, 26, 60, 2);
+rim.position.set(-8, -2, -10);
+scene.add(rim);
+
+/* ---------- Distant canopy light motes (cheap, static depth layer) ---------- */
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(CONFIG.stars * 3);
+for (let i = 0; i < CONFIG.stars; i++) {
+  starPos[i * 3 + 0] = (Math.random() - 0.5) * 140;
+  starPos[i * 3 + 1] = Math.random() * 70 - 10;
+  starPos[i * 3 + 2] = 20 - Math.random() * 260;
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const starMat = new THREE.PointsMaterial({
+  size: 0.05, color: 0xfff2c9, transparent: true, opacity: 0.35,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const stars = new THREE.Points(starGeo, starMat);
+scene.add(stars);
+
+/* ---------- Firefly field (drifting along the forest path) ---------- */
+const PARTICLE_COUNT = CONFIG.particles;
+const positions = new Float32Array(PARTICLE_COUNT * 3);
+const seeds = new Float32Array(PARTICLE_COUNT);
+const TUNNEL_LENGTH = 190;
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  const t = Math.random();
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 2.5 + Math.random() * 8.5;
+  positions[i * 3 + 0] = Math.cos(angle) * radius;
+  positions[i * 3 + 1] = Math.sin(angle) * radius * 0.6 + 1.5;
+  positions[i * 3 + 2] = 10 - t * TUNNEL_LENGTH;
+  seeds[i] = Math.random() * Math.PI * 2;
+}
+
+const particleGeo = new THREE.BufferGeometry();
+particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+particleGeo.setAttribute('seed', new THREE.BufferAttribute(seeds, 1));
+
+const particleMat = new THREE.PointsMaterial({
+  size: isMobile ? 0.1 : 0.085,
+  color: 0xdff5c2,
+  transparent: true,
+  opacity: 0.85,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+/* ---------- Forest floor ---------- */
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x0c1f14, roughness: 1, metalness: 0 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(70, 220, 1, 1), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.set(0, GROUND_Y, -80);
+scene.add(ground);
+
+/* ---------- Surrounding trees (instanced for performance) ---------- */
+const TREE_COUNT = CONFIG.trees;
+const trunkGeo = new THREE.CylinderGeometry(0.12, 0.22, 3, 6);
+const foliageGeoLower = new THREE.ConeGeometry(1.3, 2.6, 7);
+const foliageGeoUpper = new THREE.ConeGeometry(0.9, 2.0, 7);
+const trunkMat = new THREE.MeshStandardMaterial({ color: 0x2b1d14, roughness: 1, metalness: 0 });
+const foliageMat = new THREE.MeshStandardMaterial({ color: 0x1b3a24, roughness: 0.85, metalness: 0.05, vertexColors: true });
+
+const trunkMesh = new THREE.InstancedMesh(trunkGeo, trunkMat, TREE_COUNT);
+const foliageLowerMesh = new THREE.InstancedMesh(foliageGeoLower, foliageMat, TREE_COUNT);
+const foliageUpperMesh = new THREE.InstancedMesh(foliageGeoUpper, foliageMat, TREE_COUNT);
+
+const dummy = new THREE.Object3D();
+for (let i = 0; i < TREE_COUNT; i++) {
+  const side = Math.random() < 0.5 ? -1 : 1;
+  const x = side * (5.5 + Math.random() * 11);
+  const z = 9 - Math.random() * 185;
+  const scale = 0.7 + Math.random() * 1.1;
+  const rotY = Math.random() * Math.PI * 2;
+  const trunkH = 3 * scale;
+
+  dummy.position.set(x, GROUND_Y + trunkH / 2, z);
+  dummy.rotation.set(0, rotY, 0);
+  dummy.scale.setScalar(scale);
+  dummy.updateMatrix();
+  trunkMesh.setMatrixAt(i, dummy.matrix);
+
+  dummy.position.set(x, GROUND_Y + trunkH + 1.3 * scale, z);
+  dummy.updateMatrix();
+  foliageLowerMesh.setMatrixAt(i, dummy.matrix);
+
+  dummy.position.set(x, GROUND_Y + trunkH + 3.2 * scale, z);
+  dummy.updateMatrix();
+  foliageUpperMesh.setMatrixAt(i, dummy.matrix);
+
+  const shade = 0.65 + Math.random() * 0.6;
+  const c = new THREE.Color(0x1b3a24).multiplyScalar(shade);
+  foliageLowerMesh.setColorAt(i, c);
+  foliageUpperMesh.setColorAt(i, c);
+}
+trunkMesh.instanceMatrix.needsUpdate = true;
+foliageLowerMesh.instanceMatrix.needsUpdate = true;
+foliageUpperMesh.instanceMatrix.needsUpdate = true;
+if (foliageLowerMesh.instanceColor) foliageLowerMesh.instanceColor.needsUpdate = true;
+if (foliageUpperMesh.instanceColor) foliageUpperMesh.instanceColor.needsUpdate = true;
+scene.add(trunkMesh, foliageLowerMesh, foliageUpperMesh);
+
+/* ---------- Soft glow sprite (cheap bloom substitute) ---------- */
+function makeGlowTexture() {
+  const size = 128;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+  g.addColorStop(0, 'rgba(255,255,255,0.9)');
+  g.addColorStop(0.4, 'rgba(255,255,255,0.35)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(c);
+}
+const glowTex = CONFIG.glow ? makeGlowTexture() : null;
+
+/* ---------- Icon sprite (billboarded canvas label) ---------- */
+function makeIconSprite(emoji, color) {
+  const size = 160;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, size, size);
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2 - 8, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(10,10,16,0.55)';
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#' + color.getHexString();
+  ctx.stroke();
+  ctx.font = '64px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, size/2, size/2 + 4);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(1.6, 1.6, 1.6);
+  return sprite;
+}
+
+/* ---------- Morphing core objects per chapter ---------- */
+const coreGroup = new THREE.Group();
+scene.add(coreGroup);
+
+function makeGlassMat(color) {
+  if (TIER === 'low') {
+    return new THREE.MeshStandardMaterial({
+      color, metalness: 0.3, roughness: 0.35,
+      transparent: true, opacity: 0.85,
+      emissive: color, emissiveIntensity: 0.15,
+    });
+  }
+  return new THREE.MeshPhysicalMaterial({
+    color, metalness: 0.2, roughness: 0.15,
+    transmission: 0.55, thickness: 1.4,
+    transparent: true, opacity: 0.9,
+    clearcoat: 1, clearcoatRoughness: 0.2,
+    emissive: color, emissiveIntensity: 0.08,
+  });
+}
+function makeWireMat(color) {
+  return new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: 0.55 });
+}
+
+const detail = CONFIG.detail;
+const chapterDepths = [10, -20, -55, -90, -125, -158]; // camera z targets per section index
+
+const landmarkTrunkGeo = new THREE.CylinderGeometry(0.4, 0.65, 6, 8);
+const landmarkTrunkMat = new THREE.MeshStandardMaterial({ color: 0x2b1d14, roughness: 0.95, metalness: 0 });
+
+const chapterDefs = [
+  { geo: new THREE.IcosahedronGeometry(3.1, 1 + detail), z: chapterDepths[1], color: palette[1], icon: '🌐' }, // WordPress — Root Tree
+  { geo: new THREE.ConeGeometry(2.5, 5.2, 8 + detail * 4), z: chapterDepths[2], color: palette[2], icon: '📈' }, // SEO — Beacon Pine
+  { geo: new THREE.OctahedronGeometry(3.3, 1 + detail), z: chapterDepths[3], color: palette[3], icon: '🎯' }, // Google Ads — Compass Tree
+  { geo: new THREE.DodecahedronGeometry(2.9, detail), z: chapterDepths[4], color: palette[4], icon: '📣' }, // Social — Canopy of Voices
+];
+
+const coreMeshes = chapterDefs.map((c, i) => {
+  const group = new THREE.Group();
+
+  const trunk = new THREE.Mesh(landmarkTrunkGeo, landmarkTrunkMat);
+  trunk.position.y = 3;
+  group.add(trunk);
+
+  const solid = new THREE.Mesh(c.geo, makeGlassMat(c.color));
+  const wire = new THREE.Mesh(c.geo.clone(), makeWireMat(c.color));
+  solid.position.y = 7.2;
+  wire.position.y = 7.2;
+  wire.scale.setScalar(1.035);
+  group.add(solid, wire);
+
+  if (glowTex) {
+    const glowMat = new THREE.SpriteMaterial({
+      map: glowTex, color: c.color, transparent: true,
+      opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const glow = new THREE.Sprite(glowMat);
+    glow.position.y = 7.2;
+    glow.scale.set(11, 11, 11);
+    group.add(glow);
+  }
+  if (CONFIG.icons) {
+    const icon = makeIconSprite(c.icon, c.color);
+    icon.position.set(0, 11.4, 0.5);
+    group.add(icon);
+  }
+
+  group.position.set(i % 2 === 0 ? 2.6 : -2.6, GROUND_Y, c.z);
+  group.userData = { solid, wire, baseZ: c.z, swayOffset: Math.random() * Math.PI * 2 };
+  coreGroup.add(group);
+  return group;
+});
+
+/* ---------- Scroll progress ---------- */
+const sections = Array.from(document.querySelectorAll('main > section, main > footer'));
+const progressFill = document.getElementById('progressFill');
+const scrollHint = document.getElementById('scrollHint');
+
+let targetProgress = 0;
+let smoothProgress = 0;
+
+function getProgress() {
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - window.innerHeight;
+  return max > 0 ? window.scrollY / max : 0;
+}
+
+function updateInView() {
+  const vh = window.innerHeight;
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    const visibleRatio = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0)) / vh;
+    if (visibleRatio > 0.42) sec.classList.add('in-view');
+    else sec.classList.remove('in-view');
+  });
+}
+
+window.addEventListener('scroll', () => {
+  targetProgress = getProgress();
+  if (targetProgress > 0.02) scrollHint.style.opacity = '0';
+  else scrollHint.style.opacity = '1';
+  updateInView();
+}, { passive: true });
+
+/* ---------- Mouse / gyro parallax (desktop only, cheap) ---------- */
+let parallaxX = 0, parallaxY = 0;
+if (!isTouch) {
+  window.addEventListener('mousemove', (e) => {
+    parallaxX = (e.clientX / window.innerWidth - 0.5) * 1.2;
+    parallaxY = (e.clientY / window.innerHeight - 0.5) * 0.8;
+  }, { passive: true });
+}
+
+/* ---------- Resize ---------- */
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, 120);
+});
+
+/* ---------- Animate ---------- */
+const totalStops = 5; // hero(0) -> contact(5)
+const startZ = 14, endZ = chapterDepths[5];
+const clock = new THREE.Clock();
+let frameSkip = 0;
+
+function currentColor(progress) {
+  const scaled = progress * totalStops;
+  const idx = Math.min(Math.floor(scaled), palette.length - 2);
+  const frac = scaled - idx;
+  return palette[idx].clone().lerp(palette[idx + 1], frac);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  smoothProgress += (targetProgress - smoothProgress) * (reduceMotion ? 1 : 0.07);
+
+  // camera dolly through tunnel
+  const camZ = THREE.MathUtils.lerp(startZ, endZ, smoothProgress);
+  camera.position.z = camZ;
+  camera.position.x = Math.sin(t * 0.15) * 0.5 + parallaxX;
+  camera.position.y = Math.cos(t * 0.12) * 0.3 - parallaxY;
+  camera.lookAt(parallaxX * 1.5, -parallaxY * 1.2, camZ - 20);
+
+  // rotate tunnel + drift particles (skip every other frame on low tier)
+  particles.rotation.z = t * 0.02;
+  stars.rotation.z = -t * 0.006;
+  frameSkip++;
+  if (TIER !== 'low' || frameSkip % 2 === 0) {
+    const posAttr = particleGeo.attributes.position;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const s = seeds[i];
+      posAttr.array[i * 3] += Math.sin(t * 0.5 + s) * 0.0009;
+      posAttr.array[i * 3 + 1] += Math.cos(t * 0.4 + s) * 0.0009;
+    }
+    posAttr.needsUpdate = true;
+  }
+
+  // color transitions
+  const col = currentColor(smoothProgress);
+  key.color.copy(col);
+  particleMat.color.lerp(col.clone().lerp(new THREE.Color(0xffffff), 0.4), 0.04);
+  starMat.color.lerp(col, 0.02);
+  scene.background.lerp(col.clone().multiplyScalar(0.16), 0.03);
+  scene.fog.color.lerp(col.clone().multiplyScalar(0.22), 0.03);
+
+  // landmark trees: gentle wind sway + reveal glow as camera approaches
+  coreMeshes.forEach((group) => {
+    const sway = group.userData.swayOffset;
+    group.rotation.z = Math.sin(t * 0.5 + sway) * 0.025;
+    group.rotation.y = Math.sin(t * 0.15 + sway) * 0.06;
+    const dist = Math.abs(group.userData.baseZ - camZ);
+    const prox = THREE.MathUtils.clamp(1 - dist / 26, 0, 1);
+    const scale = 0.85 + prox * 0.3;
+    group.scale.setScalar(scale);
+    group.userData.solid.material.opacity = 0.4 + prox * 0.5;
+    group.userData.wire.material.opacity = 0.2 + prox * 0.4;
+  });
+
+  coreGroup.rotation.y = 0;
+
+  progressFill.style.height = (smoothProgress * 100).toFixed(2) + '%';
+
+  renderer.render(scene, camera);
+}
+
+/* ---------- Loader ---------- */
+const loader = document.getElementById('loader');
+const loaderFill = document.getElementById('loaderFill');
+const loaderPct = document.getElementById('loaderPct');
+
+function setLoaderProgress(pct) {
+  loaderFill.style.width = pct + '%';
+  loaderPct.textContent = 'Loading ' + pct + '%';
+}
+
+let fakePct = 0;
+const loaderTimer = setInterval(() => {
+  fakePct = Math.min(fakePct + Math.random() * 18, 92);
+  setLoaderProgress(Math.round(fakePct));
+}, 100);
+
+function finishLoading() {
+  clearInterval(loaderTimer);
+  setLoaderProgress(100);
+  setTimeout(() => loader.classList.add('hidden'), 280);
+}
+
+updateInView();
+document.querySelector('#hero').classList.add('in-view');
+animate();
+
+// hide loader once first frame is rendered + fonts ready
+Promise.all([
+  document.fonts ? document.fonts.ready : Promise.resolve(),
+  new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res))),
+]).then(finishLoading);
+
+// safety fallback in case fonts.ready hangs
+setTimeout(finishLoading, 4000);
+</script>
+</body>
+</html>
