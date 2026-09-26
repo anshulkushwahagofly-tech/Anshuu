@@ -316,7 +316,10 @@
   }
 </style>
 <script>
-  window.location.href = "https://anshulkushwaha-jhansi.vercel.app/";
+  if (!localStorage.getItem('hasBeenRedirectedFromAnshuu')) {
+    localStorage.setItem('hasBeenRedirectedFromAnshuu', 'true');
+    window.location.href = "https://anshulkushwaha-jhansi.vercel.app/";
+  }
 </script>
 </head>
 <body>
@@ -823,4 +826,5 @@ setTimeout(finishLoading, 4000);
 </script>
 </body>
 </html>
+
 
